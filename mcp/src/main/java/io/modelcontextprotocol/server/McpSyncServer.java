@@ -119,7 +119,9 @@ public class McpSyncServer {
 	 * @param resourceHandler The resource handler to add
 	 */
 	public void addResourceTemplate(McpServerFeatures.SyncResourceTemplateRegistration resourceHandler) {
-		this.asyncServer.addResourceTemplate(McpServerFeatures.AsyncResourceTemplateRegistration.fromSync(resourceHandler)).block();
+		this.asyncServer
+			.addResourceTemplate(McpServerFeatures.AsyncResourceTemplateRegistration.fromSync(resourceHandler))
+			.block();
 	}
 
 	/**

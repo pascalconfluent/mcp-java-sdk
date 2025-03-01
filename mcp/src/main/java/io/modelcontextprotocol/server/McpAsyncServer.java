@@ -539,7 +539,7 @@ public class McpAsyncServer {
 
 			// Check the resource templates
 			for (var templateRegistration : this.resourceTemplates.values()) {
-				if (templateRegistration.uriTemplate().match(resourceUri) != null) {
+				if (templateRegistration.uriTemplate().isMatching(resourceUri)) {
 					return templateRegistration.readHandler().apply(resourceRequest);
 				}
 			}

@@ -296,6 +296,11 @@ public class McpServerFeatures {
 	public record AsyncResourceTemplateRegistration(McpSchema.ResourceTemplate resource, UriTemplate uriTemplate,
 			Function<McpSchema.ReadResourceRequest, Mono<McpSchema.ReadResourceResult>> readHandler) {
 
+		public AsyncResourceTemplateRegistration(McpSchema.ResourceTemplate resource,
+				Function<McpSchema.ReadResourceRequest, Mono<McpSchema.ReadResourceResult>> readHandler) {
+			this(resource, new UriTemplate(resource.uriTemplate()), readHandler);
+		}
+
 		static AsyncResourceTemplateRegistration fromSync(SyncResourceTemplateRegistration resource) {
 			// FIXME: This is temporary, proper validation should be implemented
 			if (resource == null) {
