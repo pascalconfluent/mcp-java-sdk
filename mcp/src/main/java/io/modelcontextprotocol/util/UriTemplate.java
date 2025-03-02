@@ -1,8 +1,5 @@
 package io.modelcontextprotocol.util;
 
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +26,7 @@ public class UriTemplate {
 	// The original template string and parsed components
 	private final String template;
 
-	private final List<Object> parts;
+	private final List<Part> parts;
 
 	private final Pattern pattern;
 
@@ -113,8 +110,8 @@ public class UriTemplate {
 	 * @param template The URI template to parse
 	 * @return List of parts (Strings for literals, TemplatePart objects for expressions)
 	 */
-	private List<Object> parseTemplate(String template) {
-		List<Object> parsedParts = new ArrayList<>();
+	private List<Part> parseTemplate(String template) {
+		List<Part> parsedParts = new ArrayList<>();
 		StringBuilder literal = new StringBuilder();
 		int expressionCount = 0;
 
@@ -122,7 +119,7 @@ public class UriTemplate {
 		for (int i = 0; i < template.length(); i++) {
 			if (template.charAt(i) == '{') {
 				if (!literal.isEmpty()) {
-					parsedParts.add(literal.toString());
+					parsedParts.add(new Part(literal.toString()));
 					literal.setLength(0);
 				}
 				int end = template.indexOf("}", i);
@@ -143,7 +140,7 @@ public class UriTemplate {
 			}
 		}
 		if (!literal.isEmpty())
-			parsedParts.add(literal.toString());
+			parsedParts.add(new Part(literal.toString()));
 
 		return parsedParts;
 	}
@@ -219,12 +216,12 @@ public class UriTemplate {
 	 * @return A regex pattern string
 	 */
 	private String createPatternForPart(TemplatePart part) {
-		return switch (part.operator()) {
-			case "", "+" -> part.exploded() ? "([^/]+(?:,[^/]+)*)" : "([^/,]+)";
+		return switch (part.getOperator()) {
+			case "", "+" -> part.isExploded() ? "([^/]+(?:,[^/]+)*)" : "([^/,]+)";
 			case "#" -> "(.+)";
 			case "." -> "\\.([^/,]+)";
-			case "/" -> "/" + (part.exploded() ? "([^/]+(?:,[^/]+)*)" : "([^/,]+)");
-			case "?", "&" -> "\\?" + part.name() + "=([^&]+)";
+			case "/" -> "/" + (part.isExploded() ? "([^/]+(?:,[^/]+)*)" : "([^/,]+)");
+			case "?", "&" -> "\\?" + part.getName() + "=([^&]+)";
 			default -> "([^/]+)";
 		};
 	}
@@ -237,16 +234,72 @@ public class UriTemplate {
 		List<NameInfo> names = new ArrayList<>();
 		for (Object part : parts) {
 			if (part instanceof TemplatePart templatePart) {
-				templatePart.names().forEach(name -> names.add(new NameInfo(name, templatePart.exploded())));
+				templatePart.getNames().forEach(name -> names.add(new NameInfo(name, templatePart.isExploded())));
 			}
 		}
 		return names;
 	}
 
-	// Record classes for data encapsulation
-	private record TemplatePart(String name, String operator, List<String> names, boolean exploded) {
+	private static class Part {
+
+		private String name;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public Part(String name) {
+			this.name = name;
+		}
+
 	}
 
+	private static class TemplatePart extends Part {
+
+		private String operator;
+
+		private List<String> names;
+
+		private boolean exploded;
+
+		public String getOperator() {
+			return operator;
+		}
+
+		public void setOperator(String operator) {
+			this.operator = operator;
+		}
+
+		public List<String> getNames() {
+			return names;
+		}
+
+		public void setNames(List<String> names) {
+			this.names = names;
+		}
+
+		public boolean isExploded() {
+			return exploded;
+		}
+
+		public void setExploded(boolean exploded) {
+			this.exploded = exploded;
+		}
+
+		public TemplatePart(String name, String operator, List<String> names, boolean exploded) {
+			super(name);
+			this.operator = operator;
+			this.names = names;
+			this.exploded = exploded;
+		}
+
+	}
+
+	// Record classes for data encapsulation
 	private record NameInfo(String name, boolean exploded) {
 	}
 
