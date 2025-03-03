@@ -195,13 +195,12 @@ public class UriTemplate {
 	 */
 	private String createMatchingPattern() {
 		StringBuilder patternBuilder = new StringBuilder("^");
-		for (Object part : parts) {
-			if (part instanceof String) {
-				patternBuilder.append(Pattern.quote((String) part));
+		for (Part part : parts) {
+			if (part instanceof TemplatePart templatePart) {
+				patternBuilder.append(createPatternForPart(templatePart));
 			}
 			else {
-				TemplatePart templatePart = (TemplatePart) part;
-				patternBuilder.append(createPatternForPart(templatePart));
+				patternBuilder.append(Pattern.quote(part.getName()));
 			}
 		}
 		patternBuilder.append("$");
