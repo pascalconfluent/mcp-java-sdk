@@ -101,9 +101,9 @@ public class McpSyncServer {
 	 * Add a new resource template handler.
 	 * @param resourceHandler The resource handler to add
 	 */
-	public void addResourceTemplate(McpServerFeatures.SyncResourceTemplateRegistration resourceHandler) {
+	public void addResourceTemplate(McpServerFeatures.SyncResourceTemplateSpecification resourceHandler) {
 		this.asyncServer
-			.addResourceTemplate(McpServerFeatures.AsyncResourceTemplateRegistration.fromSync(resourceHandler))
+			.addResourceTemplate(McpServerFeatures.AsyncResourceTemplateSpecification.fromSync(resourceHandler))
 			.block();
 	}
 
